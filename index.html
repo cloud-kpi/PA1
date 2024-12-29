@@ -3,17 +3,12 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-    <title>PA#1</title>
+    <title>Лаб2</title>
     <style>
       body {
         background-color: #eeeeee;
       }
     </style>
-
-    <script src="./Utils/trackball-rotator.js"></script>
-    <script src="./Utils/m4.js"></script>
-    <script src="./shader.gpu"></script>
-    <script src="./main.js"></script>
   </head>
   <body onload="init()">
     <h2>A Cube with "Trackball" Mouse Rotation</h2>
@@ -31,5 +26,14 @@
         style="background-color: red"
       ></canvas>
     </div>
+
+    <input type="range" id="granularityU" min="4" max="36" value="20" />
+    <input type="range" id="granularityV" min="4" max="36" value="20" />
+
+    <script src="./Utils/trackball-rotator.js"></script>
+    <script src="./Utils/m4.js"></script>
+    <script src="./shader.gpu"></script>
+    <script src="./Model.js"></script>
+    <script src="./main.js"></script>
   </body>
 </html>
