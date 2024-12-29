@@ -1,39 +1,37 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-    <title>Лаб2</title>
-    <style>
-      body {
-        background-color: #eeeeee;
-      }
-    </style>
-  </head>
-  <body onload="init()">
-    <h2>A Cube with "Trackball" Mouse Rotation</h2>
 
-    <p id="message">
-      Drag your mouse on the cube to rotate it.<br />
-      (On a touch screen, you can use your finger.)
-    </p>
+<title>Lab2</title>
+<style>
+    body {
+        background-color: #EEEEEE;
+    }
+</style>
 
-    <div id="canvas-holder">
-      <canvas
-        width="600"
-        height="600"
-        id="webglcanvas"
-        style="background-color: red"
-      ></canvas>
-    </div>
 
-    <input type="range" id="granularityU" min="4" max="36" value="20" />
-    <input type="range" id="granularityV" min="4" max="36" value="20" />
+</head>
+<body onload="init()">
 
-    <script src="./Utils/trackball-rotator.js"></script>
-    <script src="./Utils/m4.js"></script>
-    <script src="./shader.gpu"></script>
-    <script src="./Model.js"></script>
-    <script src="./main.js"></script>
-  </body>
-</html>
+<h2>A Cube with "Trackball" Mouse Rotation</h2>
+
+<p id="message">Drag your mouse on the cube to rotate it.<br>
+(On a touch screen, you can use your finger.)</p>
+
+
+<div id="canvas-holder">
+   <canvas width="600" height="600" id="webglcanvas" style="background-color:red"></canvas>
+</div>
+
+<input type="range" id="granularityU" min="3" max="36" value="20">
+<input type="range" id="granularityV" min="2" max="36" value="20">
+
+<script src="./Utils/trackball-rotator.js"></script>
+<script src="./Utils/m4.js"></script>
+<script src="./shader.gpu"></script>
+<script src="./Model.js"></script>
+<script src="./TextureHandler.js"></script>
+<script src="./main.js"></script>
+
+
+</body></html>

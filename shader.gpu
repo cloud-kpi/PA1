@@ -2,53 +2,82 @@
 const vertexShaderSource = `
 attribute vec3 vertex;        
 attribute vec3 normal;     
+attribute vec2 tex;           // Texture coordinates
+attribute vec3 tangent; 	  // Tangent vector
 
 uniform mat4 ModelViewProjectionMatrix;
 uniform mat4 ModelViewMatrix;           
 uniform mat4 NormalMatrix;              
 
+varying vec3 fragTangent;
+varying vec3 fragBitangent;
 varying vec3 fragNormal;     
 varying vec3 fragPosition;   
 
+varying vec2 vTexCoords;
+
 void main() {
-    vec4 position = ModelViewMatrix * vec4(vertex, 1.0);
+	vTexCoords = tex;
+    
+	vec4 position = ModelViewMatrix * vec4(vertex, 1.0);
     fragPosition = position.xyz;
 
     fragNormal = normalize((NormalMatrix * vec4(normal, 0.0)).xyz);
+	fragTangent = normalize((NormalMatrix * vec4(tangent, 0.0)).xyz);
+    fragBitangent = normalize(cross(fragNormal, fragTangent));
 
     gl_Position = ModelViewProjectionMatrix * vec4(vertex, 1.0);
 }
 `;
-
-
 const fragmentShaderSource = `
 precision mediump float;
 
+uniform sampler2D iTMU0;  // Diffuse map
+uniform sampler2D iTMU1;  // Specular map
+uniform sampler2D iTMU2;  // Normal map
+
 uniform vec3 lightPosition;  // Static light position in world space
 uniform vec3 ambientLight;   // Ambient light intensity
-uniform vec4 color;          // Surface color
+uniform vec4 color;          // Surface base color
 uniform vec3 viewPosition;   // Camera position in world space
 
-varying vec3 fragNormal;     // Normal vector from vertex shader
-varying vec3 fragPosition;   // World position from vertex shader
+varying vec3 fragTangent;
+varying vec3 fragBitangent;
+varying vec3 fragNormal;      // Interpolated normal from vertex shader
+varying vec3 fragPosition;    // Interpolated position from vertex shader
+varying vec2 vTexCoords;      // Interpolated texture coordinates
 
 void main() {
+    // Transform normal map from texture to tangent space
+    vec3 tangent = normalize(fragTangent);
+    vec3 bitangent = normalize(fragBitangent);
     vec3 norm = normalize(fragNormal);
 
-    vec3 lightDir = normalize(lightPosition - fragPosition);
+    mat3 TBN = mat3(tangent, bitangent, norm);
 
+    vec3 normalMap = texture2D(iTMU2, vTexCoords).rgb;
+	normalMap = normalize(normalMap * 2.0 - 1.0);
+	vec3 perturbedNormal = normalize(TBN * normalMap) + vec3(0.5);
+
+
+    // Calculate lighting
+    vec3 lightDir = normalize(lightPosition - fragPosition);
     vec3 viewDir = normalize(viewPosition - fragPosition);
 
+    // Ambient light
     vec3 ambient = ambientLight * color.rgb;
 
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * color.rgb;
+    // Diffuse light
+    float diff = max(dot(perturbedNormal, lightDir), 0.2);
+    vec3 diffuse = diff * texture2D(iTMU0, vTexCoords).rgb;
 
+    // Specular light
     vec3 halfwayDir = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(norm, halfwayDir), 0.0), 16.0);
-    vec3 specular = vec3(0.3) * spec;
+    float spec = pow(max(dot(perturbedNormal, halfwayDir), 0.0), 16.0);
+    vec3 specular = texture2D(iTMU1, vTexCoords).rgb * spec;
 
+    // Final color
     vec3 finalColor = ambient + diffuse + specular;
-    gl_FragColor = vec4(finalColor, 1.0);
-}
-`;
+
+    gl_FragColor = vec4(finalColor, color.a);
+}`;
